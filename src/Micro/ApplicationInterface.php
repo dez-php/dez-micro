@@ -2,7 +2,7 @@
 
     namespace Dez\Micro;
 
-    interface ApplicationInterface extends \IteratorAggregate, \Countable, \ArrayAccess {
+    interface ApplicationInterface extends \Countable, \ArrayAccess {
 
 
 

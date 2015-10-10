@@ -1,0 +1,10 @@
+{
+  "db":{
+
+  },
+  "app":{
+    "session":{
+      "name": "dez-micro-app"
+    }
+  }
+}
