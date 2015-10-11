@@ -5,18 +5,49 @@
     use Dez\DependencyInjection\Container;
     use Dez\DependencyInjection\ContainerInterface;
     use Dez\DependencyInjection\InjectableInterface;
-    use Traversable;
+
+    use Dez\Config\ConfigInterface;
+    use Dez\Db\ConnectionInterface;
+    use Dez\EventDispatcher\DispatcherInterface;
+    use Dez\Http\Cookies;
+    use Dez\Http\Request;
+    use Dez\Http\Response;
+    use Dez\Http\ResponseInterface;
+    use Dez\Loader\Loader;
+    use Dez\Router\Router;
+    use Dez\Session\AdapterInterface;
+    use Dez\View\View;
+
 
     /**
      * Class Application
      * @package Dez\Micro
+     * @property Loader loader
+     * @property ConfigInterface config
+     * @property DispatcherInterface eventDispatcher
+     * @property DispatcherInterface event
+     * @property Request request
+     * @property Cookies cookies
+     * @property Response response
+     * @property AdapterInterface session
+     * @property Router router
+     * @property View view
+     * @property ConnectionInterface db
      */
     class Application implements InjectableInterface, ApplicationInterface {
+
+        const HANDLER_NOT_FOUND = 'not_found';
+
+        const HANDLER_ERROR     = 'error';
 
         /**
          * @var ContainerInterface
          */
         protected $dependencyInjection;
+
+        protected $handlers     = [];
+
+        protected $foundedRoute;
 
         /**
          * Constructor
@@ -25,8 +56,124 @@
             $this->setDi( Container::instance() );
         }
 
+        /**
+         * @param $name
+         * @return mixed
+         */
         public function __get( $name ) {
             return $this->getDi()->get( $name );
+        }
+
+        public function any( $requestUri, \Closure $handler ) {
+            $route  = $this->router->add( $requestUri );
+            $this->setHandler( $route->getRouteId(), $handler );
+            return $route;
+        }
+
+        public function get( $requestUri, \Closure $handler ) {
+            return $this->any( $requestUri, $handler )->via( [ 'get' ] );
+        }
+
+        public function post( $requestUri, \Closure $handler ) {
+            return $this->any( $requestUri, $handler )->via( [ 'post' ] );
+        }
+
+        public function put( $requestUri, \Closure $handler ) {
+            return $this->any( $requestUri, $handler )->via( [ 'put' ] );
+        }
+
+        public function delete( $requestUri, \Closure $handler ) {
+            return $this->any( $requestUri, $handler )->via( [ 'delete' ] );
+        }
+
+        public function hasErrorHandler() {
+            return $this->hasHandler( self::HANDLER_ERROR );
+        }
+
+        public function hasNotFoundHandler() {
+            return $this->hasHandler( self::HANDLER_NOT_FOUND );
+        }
+
+        public function getErrorHandler() {
+            return $this->handlers[ self::HANDLER_ERROR ];
+        }
+
+        public function getNotFoundHandler() {
+            return $this->handlers[ self::HANDLER_NOT_FOUND ];
+        }
+
+        public function error( callable $handler, $statusCode = 500 ) {
+            $this->response->setStatusCode( $statusCode );
+            $this->setHandler( self::HANDLER_ERROR, $handler );
+            return $this;
+        }
+
+        public function notFound( callable $handler, $statusCode = 404 ) {
+            $this->response->setStatusCode( $statusCode );
+            $this->setHandler( self::HANDLER_NOT_FOUND, $handler );
+            return $this;
+        }
+
+        public function execute() {
+
+            $response   = null;
+
+            try {
+
+                if( $this->router->handle()->isFounded() ) {
+                    $route  = $this->router->getMatchedRoute();
+
+                    if( ( $handler = $this->getHandler( $route->getRouteId() ) ) !== false ) {
+                        $response   = call_user_func_array( $handler, $route->getMatches() );
+                    } else {
+                        throw new ApplicationException( 'Route was founded but something wrong with it handler' );
+                    }
+
+                } else {
+                    if( $this->hasNotFoundHandler() ) {
+                        $handler    = $this->getNotFoundHandler();
+                        $response   = call_user_func_array( $handler, [ $this ] );
+                    }
+                }
+
+            } catch ( \Exception $e ) {
+
+                if( $this->hasErrorHandler() ) {
+                    $handler        = $this->getErrorHandler();
+                    $response       = call_user_func_array( $handler, [ get_class( $e ) . ": {$e->getMessage()} <pre>{$e->getTraceAsString()}</pre>" ] );
+                }
+            }
+
+            if( ! ( $response instanceof ResponseInterface ) ) {
+                $this->response->setContent( $response );
+            }
+
+            $this->response->send();
+
+            return $this;
+
+        }
+
+        public function hasHandler( $uniqueId ) {
+            return isset( $this->handlers[ $uniqueId ] );
+        }
+
+        /**
+         * @return array
+         */
+        public function getHandler( $uniqueId ) {
+            return $this->hasHandler( $uniqueId ) ? $this->handlers[ $uniqueId ] : false;
+        }
+
+        /**
+         * @param $uniqueId
+         * @param callable $handler
+         * @return $this
+         * @internal param array $handlers
+         */
+        public function setHandler( $uniqueId, callable $handler ) {
+            $this->handlers[$uniqueId] = $handler;
+            return $this;
         }
 
         /**

@@ -3,6 +3,7 @@
 
   },
   "app":{
+    "viewDirectory": "/view",
     "session":{
       "name": "dez-micro-app"
     }

@@ -1,0 +1,126 @@
+.splitter {
+text-align: center;
+font-size: 12px;
+margin-bottom:20px;
+border-bottom:1px solid #eee;
+position:relative;
+height:40px;
+}
+
+.splitter:after {
+content: "";
+display: block;
+height: 0;
+overflow: hidden;
+clear: both;
+}
+
+.splitter ul {
+margin-right: 0;
+margin-top: 0;
+position:absolute;
+right:0px;
+
+}
+
+.splitter > li {
+padding-left: 8px;
+
+}
+
+.splitter > li ul {
+margin-left: 8px;padding-bottom:10px;
+}
+
+.splitter ul li a {
+border-bottom: 0;
+position: static;
+background:#333333;
+}
+
+.splitter li,
+.splitter ul,
+.splitter ul li a  {
+display: inline;
+display: inline-block;
+line-height: 1;
+}
+
+.splitter ul li:first-child {
+margin-left: 0;
+}
+
+.splitter ul li a {
+padding:6px 10px;
+color: #fff;
+text-decoration: none;
+border: 1px solid #E0DEDE;
+border-radius: 3px 3px 3px 3px;
+color: #7A7A7A;
+cursor: pointer;
+display: block;
+float: left;
+font-family: Helvetica;
+font-size: 12px;
+font-weight: bold;
+margin: 0 10px 0 0;
+background:#fff;
+}
+
+.splitter ul li a:hover{
+background:url(../images/quick_sand_bt.png);
+border-radius: 3px 3px 3px 3px;
+background-repeat:repeat;
+background:#2c2c2c;
+color:#eee;
+}
+.splitter li ul li.selected-0 a,
+.splitter li ul li.selected-1 a,
+.splitter li ul li.selected-2 a,
+.splitter li ul li.selected-3 a,
+.splitter li ul li.selected-4 a,
+.splitter li ul li.selected-5 a,
+.splitter li ul li.selected-6 a,
+.splitter li ul li.selected-7 a
+{
+background:url(../images/quick_sand_bt.png);
+border-radius: 3px 3px 3px 3px;
+background-repeat:repeat;
+background:#2c2c2c;
+color:#eee;
+
+}
+
+
+/* 3.2 =Image Grid
+---------------------------------------------------------------------- */
+
+.image-grid {
+width: 855px;
+}
+
+.image-grid:after {
+content: "";
+display: block;
+overflow: hidden;
+clear: both;
+height:auto;
+}
+
+.image-grid li {
+width: 179px;
+float: left;
+overflow: hidden;
+margin-right:29.5px;
+margin-bottom:50px;
+}
+
+.image-grid li img,
+.image-grid li strong {
+display: block;
+}
+
+.image-grid li strong {
+color: #fff;
+}
+

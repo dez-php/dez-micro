@@ -1,0 +1,28 @@
+/* Content - Portfolio Listing */
+ul#portfolio-filter{ margin: -20px 0; padding: 0; height: 64px; padding-left: 70px; line-height: 64px; background: transparent url(../images/icon-tag-green.png) left no-repeat; }
+ul#portfolio-filter li{ display: inline; }
+ul#portfolio-filter a{ margin-right: 0.5em; padding: 0.5em 1em; background: #FFF; color: #AAA; font-weight: bold; text-decoration: none; }
+ul#portfolio-filter a:hover, ul#portfolio-filter a.current{ color: #888; }
+ul#portfolio-filter a.current{ background-color: #DDD; }
+
+ul#portfolio-list{ 
+margin: 36px 0 0 0; 
+padding: 0; 
+list-style: none;
+ }
+ 
+ul#portfolio-list li{ 
+	width: 179px; 
+	height:500px; 
+	display: block; 
+	float: left; 
+	margin-right: 29px; 
+	overflow: hidden;
+ }
+ 
+ ul#portfolio-list  li.last{
+ margin-right:0px;
+ 
+ }
+
+
