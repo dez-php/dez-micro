@@ -42,6 +42,7 @@ $di->set( 'router', function() {
 
 $di->set( 'url', function() {
     $url     = new Url();
+    $url->setStaticPath( '/public/' );
     $url->setBasePath( '/dez-micro-app/sandbox/' );
     return $url;
 } );

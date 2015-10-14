@@ -2,7 +2,6 @@
 
 namespace App;
 
-use Dez\Db\Exception;
 use Dez\Http\Response;
 use Dez\Micro\Application;
 
@@ -24,43 +23,9 @@ try {
         return $app->view->render( '404.php' );
     } );
 
-    $app->get( '/:controller/:action', function() use ( $app ) {
+    $app->get( '/', function() use ( $app ) {
         return $app->view->render( 'index.php' );
     } );
-
-    $app->any( '/login.html', function() use ( $app ) {
-        return 'Hello world! ' . $app->router->getMatchedRoute()->getRouteId();
-    } );
-
-    $app->any( '/logout.html', function() use ( $app ) {
-        return 'Hello world! ';
-    } );
-
-    $app->any( '/add-new-post.html', function() use ( $app ) {
-        return 'Hello world! ' . $app->router->getTargetUri();
-    } );
-
-    $app->any( '/posts', function() {
-        return 'Post list!';
-    } )->via( [ 'get', 'post' ] );
-
-    $app->any( '/posts/:id-:pseudo.html', function() {
-        return 'Item!' . var_dump( func_get_args() );
-    } )->via( [ 'get', 'post' ] );
-
-    $app->any( '/posts.json', function() use ( $app ) {
-        $app->response->setBodyFormat( Response::RESPONSE_API_JSON );
-        return [
-            [ 1, 2, 3, ]
-        ];
-    } )->via( [ 'get' ] );
-
-    $app->any( '/:controller/:action.:auth_driver/:format', function() use ( $app ) {
-        $app->response->setBodyFormat( Response::RESPONSE_API_JSON );
-        return [
-            'request' => func_get_args()
-        ];
-    } )->via( [ 'get' ] );
 
     $app->execute();
 

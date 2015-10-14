@@ -45,8 +45,14 @@
          */
         protected $dependencyInjection;
 
+        /**
+         * @var \Closure[]
+         */
         protected $handlers     = [];
 
+        /**
+         * @var
+         */
         protected $foundedRoute;
 
         /**
@@ -54,6 +60,12 @@
          */
         public function __construct() {
             $this->setDi( Container::instance() );
+
+            foreach( [ 'config', 'response', 'request', 'url', 'session', 'view', ] as $service ) {
+                if( $this->getDi()->has( $service ) ) {
+                    $this->view->set( $service, $this->getDi()->get( $service ) );
+                }
+            }
         }
 
         /**
@@ -64,56 +76,106 @@
             return $this->getDi()->get( $name );
         }
 
+        /**
+         * @param $requestUri
+         * @param \Closure $handler
+         * @return \Dez\Router\Route
+         */
         public function any( $requestUri, \Closure $handler ) {
             $route  = $this->router->add( $requestUri );
             $this->setHandler( $route->getRouteId(), $handler );
             return $route;
         }
 
+        /**
+         * @param $requestUri
+         * @param \Closure $handler
+         * @return $this
+         */
         public function get( $requestUri, \Closure $handler ) {
             return $this->any( $requestUri, $handler )->via( [ 'get' ] );
         }
 
+        /**
+         * @param $requestUri
+         * @param \Closure $handler
+         * @return $this
+         */
         public function post( $requestUri, \Closure $handler ) {
             return $this->any( $requestUri, $handler )->via( [ 'post' ] );
         }
 
+        /**
+         * @param $requestUri
+         * @param \Closure $handler
+         * @return $this
+         */
         public function put( $requestUri, \Closure $handler ) {
             return $this->any( $requestUri, $handler )->via( [ 'put' ] );
         }
 
+        /**
+         * @param $requestUri
+         * @param \Closure $handler
+         * @return $this
+         */
         public function delete( $requestUri, \Closure $handler ) {
             return $this->any( $requestUri, $handler )->via( [ 'delete' ] );
         }
 
+        /**
+         * @return bool
+         */
         public function hasErrorHandler() {
             return $this->hasHandler( self::HANDLER_ERROR );
         }
 
+        /**
+         * @return bool
+         */
         public function hasNotFoundHandler() {
             return $this->hasHandler( self::HANDLER_NOT_FOUND );
         }
 
+        /**
+         * @return mixed
+         */
         public function getErrorHandler() {
             return $this->handlers[ self::HANDLER_ERROR ];
         }
 
+        /**
+         * @return mixed
+         */
         public function getNotFoundHandler() {
             return $this->handlers[ self::HANDLER_NOT_FOUND ];
         }
 
+        /**
+         * @param callable $handler
+         * @param int $statusCode
+         * @return $this
+         */
         public function error( callable $handler, $statusCode = 500 ) {
             $this->response->setStatusCode( $statusCode );
             $this->setHandler( self::HANDLER_ERROR, $handler );
             return $this;
         }
 
+        /**
+         * @param callable $handler
+         * @param int $statusCode
+         * @return $this
+         */
         public function notFound( callable $handler, $statusCode = 404 ) {
             $this->response->setStatusCode( $statusCode );
             $this->setHandler( self::HANDLER_NOT_FOUND, $handler );
             return $this;
         }
 
+        /**
+         * @return $this
+         */
         public function execute() {
 
             $response   = null;
@@ -123,8 +185,8 @@
                 if( $this->router->handle()->isFounded() ) {
                     $route  = $this->router->getMatchedRoute();
 
-                    if( ( $handler = $this->getHandler( $route->getRouteId() ) ) !== false ) {
-                        $response   = call_user_func_array( $handler, $route->getMatches() );
+                    if( $this->hasHandler( $route->getRouteId() ) ) {
+                        $response   = call_user_func_array( $this->getHandler( $route->getRouteId() ), $route->getMatches() );
                     } else {
                         throw new ApplicationException( 'Route was founded but something wrong with it handler' );
                     }
@@ -140,7 +202,7 @@
 
                 if( $this->hasErrorHandler() ) {
                     $handler        = $this->getErrorHandler();
-                    $response       = call_user_func_array( $handler, [ get_class( $e ) . ": {$e->getMessage()} <pre>{$e->getTraceAsString()}</pre>" ] );
+                    $response       = call_user_func_array( $handler, [ get_class( $e ) . ": {$e->getMessage()}" ] );
                 }
             }
 
@@ -154,6 +216,10 @@
 
         }
 
+        /**
+         * @param $uniqueId
+         * @return bool
+         */
         public function hasHandler( $uniqueId ) {
             return isset( $this->handlers[ $uniqueId ] );
         }
