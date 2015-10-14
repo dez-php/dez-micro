@@ -181,7 +181,6 @@
             $response   = null;
 
             try {
-
                 if( $this->router->handle()->isFounded() ) {
                     $route  = $this->router->getMatchedRoute();
 
@@ -197,9 +196,7 @@
                         $response   = call_user_func_array( $handler, [ $this ] );
                     }
                 }
-
             } catch ( \Exception $e ) {
-
                 if( $this->hasErrorHandler() ) {
                     $handler        = $this->getErrorHandler();
                     $response       = call_user_func_array( $handler, [ get_class( $e ) . ": {$e->getMessage()}" ] );
