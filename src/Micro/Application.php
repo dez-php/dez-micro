@@ -230,12 +230,12 @@
 
         /**
          * @param $uniqueId
-         * @param callable $handler
+         * @param \Closure $handler
          * @return $this
          * @internal param array $handlers
          */
-        public function setHandler( $uniqueId, callable $handler ) {
-            $this->handlers[$uniqueId] = $handler;
+        public function setHandler( $uniqueId, \Closure $handler ) {
+            $this->handlers[$uniqueId] = \Closure::bind( $handler, $this );
             return $this;
         }
 

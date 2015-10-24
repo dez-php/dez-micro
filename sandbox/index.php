@@ -24,7 +24,8 @@ try {
     } );
 
     $app->get( '/', function() use ( $app ) {
-        return $app->view->render( 'index.php' );
+        var_dump($this); die;
+        return $this->view->render( 'index.php' );
     } );
 
     $app->execute();
