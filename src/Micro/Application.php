@@ -60,12 +60,12 @@
          */
         public function __construct() {
             $this->setDi( Container::instance() );
-
             foreach( [ 'config', 'response', 'request', 'url', 'session', 'view', ] as $service ) {
                 if( $this->getDi()->has( $service ) ) {
                     $this->view->set( $service, $this->getDi()->get( $service ) );
                 }
             }
+            $this->view->set( 'app', $this );
         }
 
         /**
