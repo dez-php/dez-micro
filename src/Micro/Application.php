@@ -2,10 +2,12 @@
 
     namespace Dez\Micro;
 
+
     use Dez\DependencyInjection\Container;
     use Dez\DependencyInjection\ContainerInterface;
     use Dez\DependencyInjection\InjectableInterface;
 
+    use Dez\Auth\Auth;
     use Dez\Config\ConfigInterface;
     use Dez\Db\ConnectionInterface;
     use Dez\EventDispatcher\DispatcherInterface;
@@ -14,6 +16,7 @@
     use Dez\Http\Response;
     use Dez\Http\ResponseInterface;
     use Dez\Loader\Loader;
+    use Dez\Router\Route;
     use Dez\Router\Router;
     use Dez\Session\AdapterInterface;
     use Dez\View\View;
@@ -33,7 +36,9 @@
      * @property Router router
      * @property View view
      * @property ConnectionInterface db
+     * @property Auth auth
      */
+
     class Application implements InjectableInterface, ApplicationInterface {
 
         const HANDLER_NOT_FOUND = 'not_found';
@@ -51,7 +56,7 @@
         protected $handlers     = [];
 
         /**
-         * @var
+         * @var Route
          */
         protected $foundedRoute;
 
@@ -60,9 +65,11 @@
          */
         public function __construct() {
             $this->setDi( Container::instance() );
-            foreach( [ 'config', 'response', 'request', 'url', 'session', 'view', ] as $service ) {
+            foreach( [ 'config', 'response', 'request', 'url', 'session', 'view', 'auth', ] as $service ) {
                 if( $this->getDi()->has( $service ) ) {
                     $this->view->set( $service, $this->getDi()->get( $service ) );
+                } else {
+                    throw new ApplicationException( "Service '{$service}' require for Application " );
                 }
             }
             $this->view->set( 'app', $this );
