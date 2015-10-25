@@ -160,22 +160,18 @@
 
         /**
          * @param callable $handler
-         * @param int $statusCode
          * @return $this
          */
-        public function error( callable $handler, $statusCode = 500 ) {
-            $this->response->setStatusCode( $statusCode );
+        public function error( callable $handler ) {
             $this->setHandler( self::HANDLER_ERROR, $handler );
             return $this;
         }
 
         /**
          * @param callable $handler
-         * @param int $statusCode
          * @return $this
          */
-        public function notFound( callable $handler, $statusCode = 404 ) {
-            $this->response->setStatusCode( $statusCode );
+        public function notFound( callable $handler ) {
             $this->setHandler( self::HANDLER_NOT_FOUND, $handler );
             return $this;
         }
